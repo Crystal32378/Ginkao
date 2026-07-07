@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
 import { GinkgoLeaf, GinkgoSpinning, GinkgoRain } from '@/components/ginkgo-leaf'
@@ -46,6 +47,9 @@ import {
   FlaskConical,
   Leaf,
   MessageSquare,
+  Link as LinkIcon,
+  Download,
+  ExternalLink,
 } from 'lucide-react'
 
 // ==================== Types ====================
@@ -621,6 +625,48 @@ function RefineCard({
   refining: boolean
   hasPrevious: boolean
 }) {
+  const { toast } = useToast()
+  const [tab, setTab] = useState<'paste' | 'url'>('paste')
+  const [shareUrl, setShareUrl] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importMeta, setImportMeta] = useState<{ source: string; messageCount: number; title?: string } | null>(null)
+
+  const handleImportUrl = async () => {
+    if (!shareUrl.trim()) {
+      toast({ title: '請貼分享連結', variant: 'destructive' })
+      return
+    }
+    setImporting(true)
+    setImportMeta(null)
+    try {
+      const res = await fetch(`/api/import-url?url=${encodeURIComponent(shareUrl.trim())}`)
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'import failed')
+      }
+      setConversation(data.conversationText)
+      setImportMeta({
+        source: data.source,
+        messageCount: data.messageCount,
+        title: data.title,
+      })
+      toast({
+        title: `已從 ${data.source === 'chatgpt' ? 'ChatGPT' : data.source === 'claude' ? 'Claude' : '分享連結'} 抓取對話`,
+        description: `${data.messageCount} 則訊息 · 已填入下方文本框，可檢視後再煉丹`,
+      })
+      // 切回貼上 tab 讓使用者看文本
+      setTab('paste')
+    } catch (err) {
+      toast({
+        title: '抓取失敗',
+        description: String(err),
+        variant: 'destructive',
+      })
+    } finally {
+      setImporting(false)
+    }
+  }
+
   return (
     <Card className="border-amber-200 bg-white shadow-sm">
       <CardHeader className="pb-3">
@@ -635,17 +681,93 @@ function RefineCard({
           )}
         </CardTitle>
         <CardDescription className="text-xs">
-          把這次對話的全文貼進來（從第一句到最後一句），按「煉丹」就會幫你萃取成記憶藥丸。
+          把這次對話餵進來，按「煉丹」就會幫你萃取成記憶藥丸。可直接貼文本，也可貼 ChatGPT / Claude 的分享連結。
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Textarea
-          placeholder={`貼上對話全文。例如：\n\nUser: 我想做一個 CRUD app...\nAssistant: 好啊，要什麼 stack？\nUser: Next.js + Prisma\nAssistant: 那我建議...\n\n不用担心太長 — 越完整，藥丸越有效。`}
-          rows={8}
-          value={conversation}
-          onChange={(e) => setConversation(e.target.value)}
-          className="resize-y text-sm leading-relaxed"
-        />
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'paste' | 'url')}>
+          <TabsList className="grid w-full grid-cols-2 max-w-sm">
+            <TabsTrigger value="paste" className="text-xs">
+              <MessageSquare className="w-3 h-3 mr-1" />
+              貼對話文本
+            </TabsTrigger>
+            <TabsTrigger value="url" className="text-xs">
+              <LinkIcon className="w-3 h-3 mr-1" />
+              貼分享連結
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="url" className="mt-3 space-y-2">
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://chatgpt.com/share/...  或  https://claude.ai/share/..."
+                value={shareUrl}
+                onChange={(e) => setShareUrl(e.target.value)}
+                className="text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !importing) handleImportUrl()
+                }}
+              />
+              <Button
+                onClick={handleImportUrl}
+                disabled={importing || !shareUrl.trim()}
+                variant="outline"
+                className="border-amber-300 text-amber-700 hover:bg-amber-50 flex-shrink-0"
+              >
+                {importing ? (
+                  <>
+                    <GinkgoSpinning size={14} className="mr-1" />
+                    抓取中…
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    抓取
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="text-[11px] text-stone-500 leading-relaxed space-y-1.5">
+              <div className="flex items-start gap-1">
+                <ExternalLink className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <span>
+                  在 ChatGPT/Claude 對話右上角找到「Share」按鈕 → 建立公開分享連結 → 貼到這裡。
+                  抓回來的文本會填到「貼對話文本」tab 讓你檢視，確認後再按煉丹。
+                </span>
+              </div>
+              <div className="flex items-start gap-1 text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5">
+                <span className="flex-shrink-0">⚠️</span>
+                <span>
+                  <b>已知限制：</b>ChatGPT 分享連結會被 Cloudflare 防護擋下（HTTP 403），
+                  建議改用「貼對話文本」tab。Claude 分享連結在支援地區可正常抓取。
+                  真正的「一鍵」需要 Chrome 擴充（會在你的瀏覽器中抓，繞過此限制）。
+                </span>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="paste" className="mt-3 space-y-2">
+            {importMeta && (
+              <div className="text-[11px] bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3" />
+                已從 {importMeta.source === 'chatgpt' ? 'ChatGPT' : importMeta.source === 'claude' ? 'Claude' : '分享連結'} 抓取
+                · {importMeta.messageCount} 則訊息
+                {importMeta.title && <span className="text-emerald-600">· {importMeta.title}</span>}
+              </div>
+            )}
+            <Textarea
+              placeholder={`貼上對話全文。例如：\n\nUser: 我想做一個 CRUD app...\nAssistant: 好啊，要什麼 stack？\nUser: Next.js + Prisma\nAssistant: 那我建議...\n\n不用担心太長 — 越完整，藥丸越有效。`}
+              rows={8}
+              value={conversation}
+              onChange={(e) => {
+                setConversation(e.target.value)
+                if (importMeta) setImportMeta(null) // 使用者改了文本，重設 import 標記
+              }}
+              className="resize-y text-sm leading-relaxed"
+            />
+          </TabsContent>
+        </Tabs>
+
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="text-xs text-stone-500">
             {conversation.length > 0 ? `${conversation.length} 字元` : '提示：可以包含 user/assistant 標記，但不是必須'}
