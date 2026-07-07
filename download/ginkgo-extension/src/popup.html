@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>銀杏藥局</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🌿</div>
+    <div>
+      <div class="title">銀杏藥局</div>
+      <div class="subtitle">治療 AI 失憶症</div>
+    </div>
+  </div>
+
+  <div id="status" class="status loading">載入設定中…</div>
+
+  <form id="settings-form" class="form hidden">
+    <label class="field">
+      <span class="label">API Base URL</span>
+      <input id="apiBaseUrl" type="url" placeholder="https://your-app.example" required>
+      <span class="hint">你的銀杏藥局網址</span>
+    </label>
+
+    <label class="field">
+      <span class="label">API Token</span>
+      <input id="apiToken" type="password" placeholder="（如果 server 有設 token）">
+      <span class="hint">server 沒設就留空</span>
+    </label>
+
+    <label class="field">
+      <span class="label">預設專案 ID</span>
+      <div class="project-row">
+        <input id="projectId" type="text" placeholder="cm..." required>
+        <button type="button" id="fetchProjects" class="btn-mini">📋 撈專案</button>
+      </div>
+      <select id="projectSelect" class="hidden">
+        <option value="">— 選擇專案 —</option>
+      </select>
+      <span class="hint">在 UI 詳情頁的 URL 裡可以找到，或按「撈專案」自動選</span>
+    </label>
+
+    <label class="field checkbox">
+      <input id="autoInject" type="checkbox">
+      <span class="label-inline">開新對話時自動提示注入記憶卡</span>
+    </label>
+
+    <div class="actions">
+      <button type="submit" class="btn-primary">儲存</button>
+      <button type="button" id="testBtn" class="btn-secondary">測試連線</button>
+    </div>
+  </form>
+
+  <div id="result" class="result hidden"></div>
+
+  <div class="footer">
+    <a href="#" id="openApp">開啟銀杏藥局 →</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

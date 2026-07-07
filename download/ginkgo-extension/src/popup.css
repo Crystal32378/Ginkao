@@ -1,0 +1,233 @@
+/* 銀杏藥局 Chrome 擴充 popup 樣式 */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 360px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+  color: #1f2937;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.logo {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #78350f;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #92400e;
+  margin-top: 2px;
+}
+
+.status {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.status.loading {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.status.success {
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.label-inline {
+  font-size: 13px;
+  color: #374151;
+}
+
+input[type="url"],
+input[type="text"],
+input[type="password"],
+select {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+  color: #1f2937;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  font-family: inherit;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #d4a24c;
+  box-shadow: 0 0 0 3px rgba(212, 162, 76, 0.15);
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #d4a24c;
+}
+
+.project-row {
+  display: flex;
+  gap: 6px;
+}
+
+.project-row input {
+  flex: 1;
+}
+
+.btn-mini {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 11px;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn-mini:hover {
+  background: #e5e7eb;
+}
+
+.hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.btn-primary {
+  background: #d4a24c;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #b8762c;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+}
+
+.result {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: #f9fafb;
+  color: #4b5563;
+  word-break: break-all;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.result.error {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.result.success {
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.footer a {
+  color: #b8762c;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.hidden {
+  display: none !important;
+}

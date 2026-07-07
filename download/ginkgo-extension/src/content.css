@@ -1,0 +1,173 @@
+/* 銀杏藥局 Chrome 擴充 — content script 樣式 */
+
+/* 浮動按鈕 */
+.ginkgo-floating-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 2147483647;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a24c 0%, #c08b3c 100%);
+  color: #fff;
+  border: 2px solid #b8762c;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(212, 162, 76, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  user-select: none;
+}
+
+.ginkgo-floating-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(212, 162, 76, 0.6);
+}
+
+.ginkgo-floating-btn:active {
+  transform: scale(0.96);
+}
+
+.ginkgo-floating-btn.ginkgo-loading {
+  animation: ginkgo-spin 2.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes ginkgo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ginkgo-floating-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Toast */
+.ginkgo-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 2147483647;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  max-width: 90vw;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ginkgo-toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.ginkgo-toast-info {
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #fcd34d;
+}
+
+.ginkgo-toast-success {
+  background: #d1fae5;
+  color: #064e3b;
+  border: 1px solid #6ee7b7;
+}
+
+.ginkgo-toast-error {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border: 1px solid #fca5a5;
+}
+
+/* 自動注入 banner */
+.ginkgo-inject-banner {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(212, 162, 76, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  max-width: 360px;
+}
+
+.ginkgo-inject-banner-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ginkgo-inject-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.ginkgo-inject-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ginkgo-inject-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ginkgo-inject-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.ginkgo-inject-btn {
+  background: #d4a24c;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ginkgo-inject-btn:hover {
+  background: #b8762c;
+}
+
+.ginkgo-inject-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ginkgo-inject-close:hover {
+  color: #4b5563;
+}

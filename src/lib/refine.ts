@@ -1,5 +1,9 @@
 // 銀杏藥局的煉丹爐 — 呼叫 LLM 把對話文本萃煉成結構化記憶
 // 這是「銀杏藥丸」的核心邏輯：融合上次記憶 + 這次對話 → 新記憶
+//
+// 支援兩種 LLM backend：
+//   - 'zai'    (預設)：z-ai-web-dev-sdk，免費
+//   - 'openai'        ：OpenAI GPT-4o-mini（或 OPENAI_MODEL 指定的模型），需自備 key
 
 import ZAI from 'z-ai-web-dev-sdk'
 import { type MemorySummary, EMPTY_MEMORY } from './memory'
@@ -36,17 +40,18 @@ export interface RefineResult {
   summary: MemorySummary
   title: string
   rawResponse: string
+  backend: string
 }
 
 /**
  * 煉丹：把對話文本 + 上次記憶 → 新記憶
+ * 依環境變數 GINKGO_LLM_BACKEND 選擇 backend
  */
 export async function refineConversation(
   conversationText: string,
   previousMemory: MemorySummary | null,
 ): Promise<RefineResult> {
-  const zai = await ZAI.create()
-
+  const backend = (process.env.GINKGO_LLM_BACKEND || 'zai').toLowerCase()
   const previousMemoryStr = previousMemory
     ? JSON.stringify(previousMemory, null, 2)
     : '（無 — 這是這個專案的第一顆藥丸）'
@@ -65,20 +70,65 @@ ${conversationText}
 
 請輸出純 JSON。`
 
+  let rawResponse: string
+
+  if (backend === 'openai') {
+    rawResponse = await callOpenAI(SYSTEM_PROMPT, userPrompt)
+  } else {
+    rawResponse = await callZai(SYSTEM_PROMPT, userPrompt)
+  }
+
+  const summary = parseMemoryJson(rawResponse)
+  const title = extractTitle(summary, conversationText)
+
+  return { summary, title, rawResponse, backend }
+}
+
+// ============== Backend: z-ai-web-dev-sdk ==============
+async function callZai(systemPrompt: string, userPrompt: string): Promise<string> {
+  const zai = await ZAI.create()
   const completion = await zai.chat.completions.create({
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
     thinking: { type: 'disabled' },
     temperature: 0.3,
   })
+  return (completion.choices[0]?.message?.content ?? '').trim()
+}
 
-  const rawResponse = (completion.choices[0]?.message?.content ?? '').trim()
-  const summary = parseMemoryJson(rawResponse)
-  const title = extractTitle(summary, conversationText)
+// ============== Backend: OpenAI API ==============
+async function callOpenAI(systemPrompt: string, userPrompt: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is required when GINKGO_LLM_BACKEND=openai')
+  }
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
-  return { summary, title, rawResponse }
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      // 強化 JSON 輸出
+      response_format: { type: 'json_object' },
+    }),
+  })
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '')
+    throw new Error(`OpenAI API error: HTTP ${res.status} — ${errText.slice(0, 300)}`)
+  }
+  const data = await res.json()
+  return (data?.choices?.[0]?.message?.content ?? '').trim()
 }
 
 /**

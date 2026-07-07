@@ -37,7 +37,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 
     // 呼叫 LLM 煉丹
-    const { summary, title, rawResponse } = await refineConversation(conversationText, previousMemory)
+    const result = await refineConversation(conversationText, previousMemory)
+    const { summary, title } = result
 
     // 把舊的 current 標成非 current，然後建立新藥丸為 current
     const newPill = await db.$transaction(async (tx) => {
@@ -73,8 +74,9 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         summary,
         createdAt: newPill.createdAt,
       },
+      backend: result.backend,
       // 除錯用：把 LLM 原始回覆也帶回來（開發期方便看模型輸出）
-      debug: process.env.NODE_ENV === 'development' ? { rawResponse: rawResponse.slice(0, 2000) } : undefined,
+      debug: process.env.NODE_ENV === 'development' ? { rawResponse: result.rawResponse.slice(0, 2000) } : undefined,
     })
   } catch (error) {
     console.error('[POST /api/projects/[id]/pills]', error)

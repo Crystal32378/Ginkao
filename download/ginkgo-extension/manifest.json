@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "銀杏藥局 Ginkgo Pharmacy",
+  "version": "0.1.0",
+  "description": "治療 AI 失憶症。一鍵把當前 ChatGPT/Claude 對話存成記憶藥丸，下次開新對話自動注入。",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://claude.ai/*"
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "icons/ginkgo-16.png",
+      "48": "icons/ginkgo-48.png",
+      "128": "icons/ginkgo-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/ginkgo-16.png",
+    "48": "icons/ginkgo-48.png",
+    "128": "icons/ginkgo-128.png"
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*", "https://claude.ai/*"],
+      "js": ["src/content.js"],
+      "css": ["src/content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
