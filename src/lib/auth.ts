@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * 銀杏藥局 API 認證
+ * Ginkgo API 認證
  *
  * 設計：
  * - 環境變數 GINKGO_API_TOKEN 留空 → 不檢查（local 自用模式）

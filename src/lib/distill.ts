@@ -1,4 +1,4 @@
-// 銀杏藥局 Distillation Engine — 把對話蒸餾成 Brain 的 delta operation
+// Ginkgo Distillation Engine — 把對話蒸餾成 Brain 的 delta operation
 //
 // 與 refine.ts 不同：
 //   - refine.ts 是「summary engine」— 輸出完整記憶摘要
@@ -17,7 +17,7 @@ import {
   TYPE_LABEL_ZH,
 } from './brain'
 
-const SYSTEM_PROMPT = `你是「銀杏藥局」的蒸餾引擎 (Distillation Engine)。
+const SYSTEM_PROMPT = `你是「Ginkgo」的蒸餾引擎 (Distillation Engine)。
 
 你的任務不是「摘要對話」，而是「提煉專案知識」— 把對話中的 stable knowledge 蒸餾成 Project Brain 的 delta operation。
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "銀杏藥局 Ginkgo Pharmacy",
-  "version": "0.1.0",
-  "description": "治療 AI 失憶症。一鍵把當前 ChatGPT/Claude 對話存成記憶藥丸，下次開新對話自動注入。",
+  "name": "Ginkgo",
+  "version": "0.2.0",
+  "description": "治療 AI 失憶症。一鍵把當前 ChatGPT/Claude 對話蒸餾成 Brain 知識，下次開新對話自動注入。該 Ginkgo 了就會提醒你。",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://chatgpt.com/*",

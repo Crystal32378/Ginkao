@@ -2,49 +2,78 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>銀杏藥局</title>
+  <title>Ginkgo</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="header">
     <div class="logo">🌿</div>
     <div>
-      <div class="title">銀杏藥局</div>
-      <div class="subtitle">治療 AI 失憶症</div>
+      <div class="title">Ginkgo</div>
+      <div class="subtitle">Distillation Engine</div>
     </div>
   </div>
 
   <div id="status" class="status loading">載入設定中…</div>
 
   <form id="settings-form" class="form hidden">
-    <label class="field">
-      <span class="label">API Base URL</span>
-      <input id="apiBaseUrl" type="url" placeholder="https://your-app.example" required>
-      <span class="hint">你的銀杏藥局網址</span>
-    </label>
+    <div class="section">
+      <div class="section-title">連線設定</div>
 
-    <label class="field">
-      <span class="label">API Token</span>
-      <input id="apiToken" type="password" placeholder="（如果 server 有設 token）">
-      <span class="hint">server 沒設就留空</span>
-    </label>
+      <label class="field">
+        <span class="label">API Base URL</span>
+        <input id="apiBaseUrl" type="url" placeholder="https://your-app.example" required>
+        <span class="hint">你的 Ginkgo server 網址</span>
+      </label>
 
-    <label class="field">
-      <span class="label">預設專案 ID</span>
-      <div class="project-row">
-        <input id="projectId" type="text" placeholder="cm..." required>
-        <button type="button" id="fetchProjects" class="btn-mini">📋 撈專案</button>
-      </div>
-      <select id="projectSelect" class="hidden">
-        <option value="">— 選擇專案 —</option>
-      </select>
-      <span class="hint">在 UI 詳情頁的 URL 裡可以找到，或按「撈專案」自動選</span>
-    </label>
+      <label class="field">
+        <span class="label">API Token</span>
+        <input id="apiToken" type="password" placeholder="（如果 server 有設 token）">
+        <span class="hint">server 沒設就留空</span>
+      </label>
 
-    <label class="field checkbox">
-      <input id="autoInject" type="checkbox">
-      <span class="label-inline">開新對話時自動提示注入記憶卡</span>
-    </label>
+      <label class="field">
+        <span class="label">預設專案 ID</span>
+        <div class="project-row">
+          <input id="projectId" type="text" placeholder="cm..." required>
+          <button type="button" id="fetchProjects" class="btn-mini">📋 撈專案</button>
+        </div>
+        <select id="projectSelect" class="hidden">
+          <option value="">— 選擇專案 —</option>
+        </select>
+        <span class="hint">按「撈專案」自動帶出，或在 server URL 後面接 /projects/[id]</span>
+      </label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">提醒設定</div>
+
+      <label class="field">
+        <span class="label">訊息數超過多少則時提醒 Ginkgo？</span>
+        <input id="reminderThreshold" type="number" min="3" max="100" value="15" step="1">
+        <span class="hint">預設 15。對話變長時按鈕會脈動 + 跳出提醒</span>
+      </label>
+
+      <label class="field checkbox">
+        <input id="amnesiaDetection" type="checkbox" checked>
+        <span class="label-inline">偵測 AI 失憶症狀（推薦開啟）</span>
+      </label>
+      <span class="hint" style="margin-top: -4px; margin-left: 24px;">
+        掃描最近 AI 回覆，若出現「如前所述 / let me explain」等重解釋 pattern → 跳警告
+      </span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">自動注入</div>
+
+      <label class="field checkbox">
+        <input id="autoInject" type="checkbox" checked>
+        <span class="label-inline">開新對話時自動提示注入 Brain</span>
+      </label>
+      <span class="hint" style="margin-top: -4px; margin-left: 24px;">
+        偵測到 ChatGPT/Claude 新對話頁時，跳出 banner 讓你一鍵注入
+      </span>
+    </div>
 
     <div class="actions">
       <button type="submit" class="btn-primary">儲存</button>
@@ -55,7 +84,7 @@
   <div id="result" class="result hidden"></div>
 
   <div class="footer">
-    <a href="#" id="openApp">開啟銀杏藥局 →</a>
+    <a href="#" id="openApp">開啟 Ginkgo →</a>
   </div>
 
   <script src="popup.js"></script>

@@ -1,4 +1,4 @@
-// 銀杏藥局 Chrome 擴充 popup 邏輯
+// Ginkgo Chrome 擴充 popup 邏輯 v0.2
 
 const form = document.getElementById('settings-form')
 const status = document.getElementById('status')
@@ -7,36 +7,50 @@ const apiBaseUrlInput = document.getElementById('apiBaseUrl')
 const apiTokenInput = document.getElementById('apiToken')
 const projectIdInput = document.getElementById('projectId')
 const projectSelect = document.getElementById('projectSelect')
+const reminderThresholdInput = document.getElementById('reminderThreshold')
+const amnesiaDetectionInput = document.getElementById('amnesiaDetection')
 const autoInjectInput = document.getElementById('autoInject')
 const fetchProjectsBtn = document.getElementById('fetchProjects')
 const testBtn = document.getElementById('testBtn')
 const openAppLink = document.getElementById('openApp')
 
 // 載入已儲存的設定
-chrome.storage.sync.get(['apiBaseUrl', 'apiToken', 'projectId', 'autoInject'], (data) => {
-  apiBaseUrlInput.value = data.apiBaseUrl || ''
-  apiTokenInput.value = data.apiToken || ''
-  projectIdInput.value = data.projectId || ''
-  autoInjectInput.checked = data.autoInject !== false // 預設 true
-  status.classList.add('hidden')
-  form.classList.remove('hidden')
-})
+chrome.storage.sync.get(
+  ['apiBaseUrl', 'apiToken', 'projectId', 'reminderThreshold', 'amnesiaDetection', 'autoInject'],
+  (data) => {
+    apiBaseUrlInput.value = data.apiBaseUrl || ''
+    apiTokenInput.value = data.apiToken || ''
+    projectIdInput.value = data.projectId || ''
+    reminderThresholdInput.value = data.reminderThreshold ?? 15
+    amnesiaDetectionInput.checked = data.amnesiaDetection !== false // 預設 true
+    autoInjectInput.checked = data.autoInject !== false // 預設 true
+    status.classList.add('hidden')
+    form.classList.remove('hidden')
+  },
+)
 
 // 儲存設定
 form.addEventListener('submit', (e) => {
   e.preventDefault()
+  const threshold = parseInt(reminderThresholdInput.value, 10)
+  if (isNaN(threshold) || threshold < 3 || threshold > 100) {
+    showResult('訊息數 threshold 必須在 3-100 之間', 'error')
+    return
+  }
   const data = {
     apiBaseUrl: apiBaseUrlInput.value.trim().replace(/\/$/, ''),
     apiToken: apiTokenInput.value.trim(),
     projectId: projectIdInput.value.trim(),
+    reminderThreshold: threshold,
+    amnesiaDetection: amnesiaDetectionInput.checked,
     autoInject: autoInjectInput.checked,
   }
   chrome.storage.sync.set(data, () => {
-    showResult('設定已儲存 ✓', 'success')
+    showResult('設定已儲存 ✓\n提醒會在下次對話更新時生效', 'success')
   })
 })
 
-// 測試連線
+// 測試連線 — 改用 /brain 端點
 testBtn.addEventListener('click', async () => {
   const baseUrl = apiBaseUrlInput.value.trim().replace(/\/$/, '')
   const token = apiTokenInput.value.trim()
@@ -53,7 +67,7 @@ testBtn.addEventListener('click', async () => {
 
   showResult('測試中…')
   try {
-    const url = `${baseUrl}/api/projects/${projectId}/memory`
+    const url = `${baseUrl}/api/projects/${projectId}/brain`
     const headers = {}
     if (token) headers['authorization'] = `Bearer ${token}`
     const res = await fetch(url, { headers })
@@ -64,14 +78,9 @@ testBtn.addEventListener('click', async () => {
       throw new Error(`HTTP ${res.status}`)
     }
     const data = await res.json()
-    const mem = data.memory || {}
-    const count =
-      (mem.decisions?.length || 0) +
-      (mem.openQuestions?.length || 0) +
-      (mem.actionItems?.length || 0) +
-      (mem.contextAnchors?.length || 0)
+    const activeCount = data.activeCount ?? data.items?.length ?? 0
     showResult(
-      `連線成功 ✓\n專案：${data.project?.name || '?'}\n當前藥丸：${data.pill?.title || '(無)'}\n記憶條目：${count}`,
+      `連線成功 ✓\n專案：${data.project?.name || '?'}\nBrain 版本：v${(data.brainVersion ?? 0).toFixed(2)}\n知識條目：${activeCount} active`,
       'success',
     )
   } catch (err) {
@@ -99,21 +108,21 @@ fetchProjectsBtn.addEventListener('click', async () => {
     const projects = data.projects || []
 
     if (projects.length === 0) {
-      showResult('沒有任何專案，請先到銀杏藥局 UI 建立', 'error')
+      showResult('沒有任何專案，請先到 Ginkgo UI 建立', 'error')
       return
     }
 
-    // 填入 select
     projectSelect.innerHTML = '<option value="">— 選擇專案 —</option>'
     projects.forEach((p) => {
       const opt = document.createElement('option')
       opt.value = p.id
-      opt.textContent = `${p.emoji || '🌿'} ${p.name} (${p._count?.pills || 0} 顆)`
+      const itemCount = p._count?.knowledgeItems ?? 0
+      const pillCount = p._count?.pills ?? 0
+      opt.textContent = `${p.emoji || '🌿'} ${p.name} (Brain v${(p.brainVersion ?? 0).toFixed(2)}, ${itemCount} 知識, ${pillCount} 對話)`
       projectSelect.appendChild(opt)
     })
     projectSelect.classList.remove('hidden')
 
-    // 如果當前 projectId 在列表中，預選它
     if (projectIdInput.value) {
       projectSelect.value = projectIdInput.value
     }
@@ -128,14 +137,14 @@ projectSelect.addEventListener('change', () => {
   projectIdInput.value = projectSelect.value
 })
 
-// 開啟銀杏藥局
+// 開啟 Ginkgo
 openAppLink.addEventListener('click', (e) => {
   e.preventDefault()
   const baseUrl = apiBaseUrlInput.value.trim().replace(/\/$/, '')
   if (baseUrl) {
     chrome.tabs.create({ url: baseUrl })
   } else {
-    chrome.tabs.create({ url: 'https://preview-z-bot-id.space-z.ai/' })
+    chrome.tabs.create({ url: 'https://github.com/Crystal32378/Ginkao' })
   }
 })
 

@@ -1,0 +1,64 @@
+[
+  {
+    "title": "Ginkgo 設計討論 — 蒸餾引擎",
+    "create_time": 1720000000,
+    "mapping": {
+      "root": { "message": null, "children": ["a"] },
+      "a": {
+        "message": {
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["我想做一個解決 AI 跨對話失憶症的工具。痛點是 AI 每次開新對話就忘了之前討論過的決策，會重新提問、推翻已定案的事"] },
+          "create_time": 1720000001
+        },
+        "children": ["b"]
+      },
+      "b": {
+        "message": {
+          "author": { "role": "assistant" },
+          "content": { "content_type": "text", "parts": ["我建議用蒸餾引擎而不是摘要引擎。Brain 應該有 8 種知識類型：DECISION, CONSTRAINT, PRINCIPLE, DEFINITION, FACT, QUESTION, RISK, HYPOTHESIS。每次對話做 delta 運算（add/update/retire）"] },
+          "create_time": 1720000002
+        },
+        "children": ["c"]
+      },
+      "c": {
+        "message": {
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["為什麼不用 3 點決策摘要？"] },
+          "create_time": 1720000003
+        },
+        "children": ["d"]
+      },
+      "d": {
+        "message": {
+          "author": { "role": "assistant" },
+          "content": { "content_type": "text", "parts": ["3 點決策不夠。真正會痛的失憶有 4 類：決策、開放問題、行動項、背景錨點。背景錨點尤其重要 — 防止 AI 重新提議已否決過的方向"] },
+          "create_time": 1720000004
+        },
+        "children": []
+      }
+    }
+  },
+  {
+    "title": "技術棧選擇",
+    "create_time": 1720001000,
+    "mapping": {
+      "root": { "message": null, "children": ["x"] },
+      "x": {
+        "message": {
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["用什麼技術棧做這個工具？"] },
+          "create_time": 1720001001
+        },
+        "children": ["y"]
+      },
+      "y": {
+        "message": {
+          "author": { "role": "assistant" },
+          "content": { "content_type": "text", "parts": ["Next.js 16 + Prisma SQLite + z-ai-web-dev-sdk。local-first 不上雲，單人使用"] },
+          "create_time": 1720001002
+        },
+        "children": []
+      }
+    }
+  }
+]

@@ -152,8 +152,8 @@ function Header() {
         <div className="flex items-center gap-2 text-amber-700">
           <GinkgoLeaf size={28} className="text-amber-600" />
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-stone-800">銀杏藥局</h1>
-            <p className="text-[10px] text-stone-500 -mt-0.5">Ginkgo Distillation Engine · 治療 AI 失憶症</p>
+            <h1 className="text-lg font-bold tracking-tight text-stone-800">Ginkgo</h1>
+            <p className="text-[10px] text-stone-500 -mt-0.5">Distillation Engine · 治療 AI 失憶症</p>
           </div>
         </div>
         <div className="ml-auto hidden sm:flex items-center gap-1.5 text-xs text-stone-500">
@@ -177,7 +177,7 @@ function Footer() {
       <div className="container mx-auto max-w-7xl px-4 py-4 text-xs text-stone-500 flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-1.5">
           <GinkgoLeaf size={12} className="text-amber-600" />
-          蒸餾引擎 — 把對話變成可演化的專案知識
+          Ginkgo — 蒸餾引擎，把對話變成可演化的專案知識
         </span>
         <span className="text-stone-400 font-mono">v2 · local-first · SQLite</span>
       </div>
@@ -282,7 +282,7 @@ function ProjectListView({ onOpen }: { onOpen: (p: Project) => void }) {
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     <GinkgoLeaf size={20} className="text-amber-600" />
-                    新增記憶專案
+                    新增 Ginkgo 專案
                   </DialogTitle>
                   <DialogDescription>
                     不同專案的 Brain 互相隔離 — 換專案就換一整組知識，避免汙染。
@@ -293,7 +293,7 @@ function ProjectListView({ onOpen }: { onOpen: (p: Project) => void }) {
                     <Label htmlFor="p-name">專案名稱 *</Label>
                     <Input
                       id="p-name"
-                      placeholder="例如：銀杏藥局產品開發"
+                      placeholder="例如：Ginkgo 產品開發"
                       value={newProject.name}
                       onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                     />
@@ -565,6 +565,9 @@ function ProjectDetailView({ project, onBack }: { project: Project | null; onBac
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* 從資料匯出匯入 — 獨立區塊 */}
+      <ImportExportCard projectId={project.id} onDistilled={fetchAll} />
 
       {/* 主區塊：左邊是輸入+今日銀杏，右邊是 Brain Protocol（深色） */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -851,7 +854,7 @@ function TodayGinkgoCard({ distill }: { distill: DistillResponse }) {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-stone-800 text-base">
           <GinkgoLeaf size={18} className="text-amber-600" />
-          今日銀杏
+          今日 Ginkgo
           <Badge variant="outline" className="ml-auto text-xs font-mono bg-white">
             v{distill.brainVersionBefore.toFixed(2)} → v{distill.brainVersionAfter.toFixed(2)}
           </Badge>
@@ -1142,6 +1145,288 @@ function ProtocolTextView({
         )
       })}
     </div>
+  )
+}
+
+// ==================== Import / Export Card（從 ChatGPT/Claude 資料匯出匯入） ====================
+interface ImportedConversationMeta {
+  id: string
+  title: string
+  source: 'chatgpt' | 'claude'
+  createdAt: string
+  messageCount: number
+  tokenEstimate: number
+  conversationText: string
+  preview: string
+}
+
+function ImportExportCard({ projectId, onDistilled }: { projectId: string; onDistilled: () => Promise<void> }) {
+  const { toast } = useToast()
+  const [expanded, setExpanded] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [parsed, setParsed] = useState<{
+    source: string
+    totalConversations: number
+    parsedCount: number
+    skippedCount: number
+    conversations: ImportedConversationMeta[]
+  } | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [distillingImport, setDistillingImport] = useState(false)
+  const [progress, setProgress] = useState<{ current: number; total: number; currentTitle: string } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.name.endsWith('.json')) {
+      toast({ title: '請上傳 .json 檔案', variant: 'destructive' })
+      return
+    }
+
+    setParsing(true)
+    setParsed(null)
+    try {
+      const text = await file.text()
+      const json = JSON.parse(text)
+      const res = await fetch(`/api/projects/${projectId}/import-conversations`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ json }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'parse failed')
+      }
+      const data = await res.json()
+      setParsed(data)
+      setSelected(new Set())
+      toast({
+        title: `解析完成 — ${data.source === 'chatgpt' ? 'ChatGPT' : 'Claude'}`,
+        description: `撈到 ${data.parsedCount} 個對話（跳過 ${data.skippedCount} 個太短）`,
+      })
+    } catch (err) {
+      toast({ title: '解析失敗', description: String(err), variant: 'destructive' })
+    } finally {
+      setParsing(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectAll = () => {
+    if (!parsed) return
+    setSelected(new Set(parsed.conversations.map((c) => c.id)))
+  }
+
+  const selectNone = () => {
+    setSelected(new Set())
+  }
+
+  const handleDistillSelected = async () => {
+    if (!parsed || selected.size === 0) return
+    setDistillingImport(true)
+    setProgress({ current: 0, total: selected.size, currentTitle: '' })
+
+    let successCount = 0
+    let failCount = 0
+    const items = parsed.conversations.filter((c) => selected.has(c.id))
+
+    for (let i = 0; i < items.length; i++) {
+      const conv = items[i]
+      setProgress({ current: i + 1, total: items.length, currentTitle: conv.title })
+      try {
+        const res = await fetch(`/api/projects/${projectId}/distill`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ conversationText: conv.conversationText }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || `HTTP ${res.status}`)
+        }
+        successCount++
+        // 每個之間等 1 秒，避免 rate limit
+        if (i < items.length - 1) {
+          await new Promise((r) => setTimeout(r, 1000))
+        }
+      } catch (err) {
+        console.error(`[Ginkgo import] distill failed for ${conv.title}:`, err)
+        failCount++
+      }
+    }
+
+    setDistillingImport(false)
+    setProgress(null)
+    toast({
+      title: `批次蒸餾完成 — ${successCount} 成功 / ${failCount} 失敗`,
+      description: failCount === 0 ? 'Brain 已演化' : '部分失敗，可查看 Diary 看哪些成功',
+    })
+    await onDistilled()
+  }
+
+  return (
+    <Card className="border-amber-200 bg-white shadow-sm">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-stone-800 text-base">
+          <Download className="w-4 h-4 text-amber-600" />
+          從資料匯出匯入
+          <Badge variant="outline" className="ml-auto text-xs font-normal bg-amber-50">
+            ChatGPT + Claude
+          </Badge>
+        </CardTitle>
+        <CardDescription className="text-xs">
+          一次匯入整個 ChatGPT / Claude 帳號的對話歷史，挑選要蒸餾的成 Brain 知識。
+          繞過 share URL 的所有限制。
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900"
+        >
+          {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          {expanded ? '收起' : '展開 — 怎麼匯出？'}
+        </button>
+
+        {expanded && (
+          <div className="text-xs bg-amber-50/50 border border-amber-200 rounded-lg p-3 space-y-2 text-stone-700">
+            <div>
+              <b>ChatGPT：</b>Settings → Data controls → Export data → 收 email → 解 zip → 找到{' '}
+              <code className="bg-stone-100 px-1 rounded">conversations.json</code>
+            </div>
+            <div>
+              <b>Claude：</b>Settings → Account → Export data → 解 zip → 找到{' '}
+              <code className="bg-stone-100 px-1 rounded">conversations.json</code>
+            </div>
+            <div className="text-stone-500 italic">
+              把那個 .json 檔上傳到下面 — 系統會自動偵測格式、解析所有對話、讓你勾選要蒸餾的。
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="ginkgo-file-upload"
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={parsing}
+            variant="outline"
+            size="sm"
+            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+          >
+            {parsing ? (
+              <>
+                <GinkgoSpinning size={14} className="mr-1.5" />
+                解析中…
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+                上傳 conversations.json
+              </>
+            )}
+          </Button>
+          {parsed && (
+            <span className="text-xs text-stone-500 font-mono">
+              {parsed.source === 'chatgpt' ? 'ChatGPT' : 'Claude'} · {parsed.parsedCount} 個對話
+            </span>
+          )}
+        </div>
+
+        {/* 解析結果 — 對話列表 */}
+        {parsed && parsed.conversations.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button onClick={selectAll} variant="ghost" size="sm" className="text-xs h-7">
+                全選
+              </Button>
+              <Button onClick={selectNone} variant="ghost" size="sm" className="text-xs h-7">
+                全不選
+              </Button>
+              <span className="text-xs text-stone-500">
+                已選 {selected.size} / {parsed.conversations.length}
+              </span>
+              <Button
+                onClick={handleDistillSelected}
+                disabled={selected.size === 0 || distillingImport}
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white ml-auto h-7"
+              >
+                {distillingImport ? (
+                  <>
+                    <GinkgoSpinning size={12} className="mr-1" />
+                    蒸餾中 {progress?.current}/{progress?.total}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    蒸餾選取的 {selected.size} 個
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {distillingImport && progress && (
+              <div className="text-xs bg-amber-50 border border-amber-200 rounded-md p-2">
+                <div className="font-medium text-amber-800">
+                  蒸餾中 {progress.current} / {progress.total}
+                </div>
+                <div className="text-stone-600 truncate">現在：{progress.currentTitle}</div>
+              </div>
+            )}
+
+            <ScrollArea className="max-h-72 pr-3">
+              <div className="space-y-1">
+                {parsed.conversations.map((conv) => (
+                  <label
+                    key={conv.id}
+                    className={`flex items-start gap-2 p-2 rounded-md border cursor-pointer transition ${
+                      selected.has(conv.id)
+                        ? 'border-amber-300 bg-amber-50'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected.has(conv.id)}
+                      onChange={() => toggleSelect(conv.id)}
+                      className="mt-1 accent-amber-600"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium text-stone-800 truncate">
+                        {conv.source === 'chatgpt' ? '🟢' : '🟠'} {conv.title}
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-0.5 flex gap-2">
+                        <span>{conv.messageCount} 則</span>
+                        <span>~{conv.tokenEstimate.toLocaleString()} tok</span>
+                        <span>{new Date(conv.createdAt).toLocaleDateString('zh-TW')}</span>
+                      </div>
+                      <div className="text-[10px] text-stone-400 mt-0.5 line-clamp-1">{conv.preview}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

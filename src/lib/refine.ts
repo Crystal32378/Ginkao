@@ -1,4 +1,4 @@
-// 銀杏藥局 v2 — 蒸餾引擎
+// Ginkgo v2 — 蒸餾引擎
 // 收到：Brain 現況 + 新對話
 // 輸出：Ritual steps + Delta operations + Today's Ginkgo summary
 //
@@ -18,7 +18,7 @@ import {
   estimateTokens,
 } from './brain'
 
-const SYSTEM_PROMPT = `你是「銀杏藥局」的蒸餾引擎，負責把冗長的對話蒸餾成持久的專案知識。
+const SYSTEM_PROMPT = `你是「Ginkgo」的蒸餾引擎，負責把冗長的對話蒸餾成持久的專案知識。
 
 # 你的角色
 
@@ -269,7 +269,7 @@ function parseDistillResult(raw: string, fallbackTokensRead: number): DistillRes
   }
 
   if (!parsed) {
-    console.error('[銀杏藥局] 無法解析 LLM 回覆為 JSON。原始回覆：', raw.slice(0, 500))
+    console.error('[Ginkgo] 無法解析 LLM 回覆為 JSON。原始回覆：', raw.slice(0, 500))
     return {
       ritual: [{ step: 'Failed to parse LLM response', status: 'done' }],
       delta: { add: [], update: [], retire: [] },

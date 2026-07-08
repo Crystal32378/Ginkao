@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Ginkgo — Distillation Engine for AI",
+  description: "治療 AI 失憶症的蒸餾引擎。把對話提煉成可演化的 Project Brain，下次開新對話直接注入。",
+  keywords: ["Ginkgo", "AI memory", "distillation", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui"],
+  authors: [{ name: "Ginkgo" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Ginkgo",
+    description: "Distillation Engine for AI — 治療 AI 失憶症",
     url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    siteName: "Ginkgo",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Ginkgo",
+    description: "Distillation Engine for AI — 治療 AI 失憶症",
   },
 };
 
