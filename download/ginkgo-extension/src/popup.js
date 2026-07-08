@@ -144,7 +144,7 @@ openAppLink.addEventListener('click', (e) => {
   if (baseUrl) {
     chrome.tabs.create({ url: baseUrl })
   } else {
-    chrome.tabs.create({ url: 'https://github.com/Crystal32378/Ginkao' })
+    chrome.tabs.create({ url: 'https://github.com/Crystal32378/Ginkgo' })
   }
 })
 
