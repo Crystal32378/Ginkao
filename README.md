@@ -1,50 +1,51 @@
-# 🌿 Ginkao
+# 🌿 Ginkgo
 
-> **Distill conversations into persistent project memory.**  
-> **將對話提煉成可持續累積的專案記憶。**
+## Consistent, Evolving Memory for AI
 
-AI conversations are temporary.
+> **AI shouldn't restart every conversation.**  
+> **Ginkgo lets every conversation build on the last one.**
 
-Projects are not.
+Projects last for months.
 
-Every long-running AI project eventually hits the same wall:
+Research takes years.
 
-- The context window fills up.
-- A new chat begins.
-- The AI forgets previous decisions.
-- Users repeat the same background again.
-- Agents propose ideas that were already rejected.
+Plans evolve.
 
-Ginkao solves this by **distilling conversations instead of storing them**.
+Knowledge grows.
 
-It turns long discussions into a structured, evolving **Project Brain**, so future chats and agents can continue from what has already been understood.
+But AI conversations often start from zero.
+
+Ginkgo continuously distills conversations into a **consistent, evolving memory**, allowing humans and AI agents to continue thinking across conversations, models, and time.
 
 ---
 
-## 為什麼需要 Ginkao？
+## 為什麼需要 Ginkgo？
 
-同一個 project 中，會經過很多次的來回討論。
+同一個 project、research 或 plan，會經過很多次的來回討論。
 
 AI 的上下文遺忘，是一個巨大的痛點。
 
-使用者討厭重複解釋事物。ChatGPT 的「記憶」功能會在所有對話中通用，容易造成跨專案污染。Ginkao 的做法不是把所有聊天都塞進一個大記憶，而是用 **project_id 隔離**，讓每個專案擁有自己的記憶。
+使用者討厭重複解釋事物。ChatGPT 的「記憶」功能會在所有對話中通用，容易造成跨專案污染。Ginkgo 的做法不是把所有聊天都塞進一個大記憶，而是用 **project_id 隔離**，讓每個專案、研究或規劃擁有自己的記憶。
 
 真正流失的不是聊天紀錄。
 
-真正流失的是累積數週、數月、甚至數年的**專案知識**。
+真正流失的是累積數週、數月、甚至數年的**理解**。
 
 ```text
 每一顆銀杏，讓 Agent 記得你
-每一次提煉，讓記憶更持續
-每一次重啟，讓專案更穩定
+每一次提煉，讓記憶更一致
+每一次重啟，讓理解能延續
 ```
 
 ---
 
 ## The Core Idea
 
-> **Memory is not storage. Memory is distilled understanding.**  
-> **記憶不是儲存，而是提煉後的理解。**
+> **Memory is not storage.**  
+> **Memory is understanding that stays consistent and evolves over time.**
+>
+> **記憶不是儲存。**  
+> **記憶是持續演化、保持一致的理解。**
 
 AI does not need to remember every sentence.
 
@@ -59,21 +60,21 @@ AI needs to remember what matters:
 - Risks
 - Hypotheses
 
-Ginkao keeps these through structured distillation.
+Ginkgo keeps these through structured distillation.
 
-Instead of saving one snapshot per conversation, Ginkao maintains a single evolving Project Brain.
+Instead of saving one snapshot per conversation, Ginkgo maintains a single evolving Project Brain.
 
 ---
 
 ## Distillation, not Summarization
 
-Ginkao is not a summary engine.
+Ginkgo is not a summary engine.
 
 Summary asks:
 
 > What did we talk about?
 
-Ginkao asks:
+Ginkgo asks:
 
 > What does the AI need to remember next time?
 
@@ -84,7 +85,7 @@ Ginkao asks:
 | Continuity | Easy to lose context | Preserves decisions, rationale, and retired ideas |
 | Token efficiency | Repeats the whole context | Uses item IDs such as `[D17]` |
 
-Ginkao is designed to prevent the most annoying AI failure:
+Ginkgo is designed to prevent the most annoying AI failure:
 
 > The AI forgets why we rejected something and proposes it again.
 
@@ -137,9 +138,9 @@ It becomes living memory.
 
 ---
 
-## Project-first Memory
+## Memory-first, Project-safe
 
-每一個 Project 都有自己的 Brain。
+每一個 project、research 或 plan 都可以有自己的 Brain。
 
 ```text
 NUDE
@@ -158,7 +159,7 @@ R18
 └── Knowledge Items
 ```
 
-不同專案互不污染。
+不同脈絡互不污染。
 
 AI 不需要重新認識你的世界。
 
@@ -213,8 +214,8 @@ $ distill --verbose
 ### 1. Server
 
 ```bash
-git clone https://github.com/Crystal32378/Ginkao.git
-cd Ginkao
+git clone https://github.com/Crystal32378/Ginkgo.git
+cd Ginkgo
 
 bun install
 
@@ -400,13 +401,13 @@ AI 需要更好的記憶。
 
 不是更多 Storage。
 
-而是更多 Understanding。
+而是更穩定、持續演化的 Understanding。
 
-> **Conversations disappear.**  
-> **Knowledge compounds.**
+> **Conversations end.**  
+> **Understanding continues.**
 >
 > **對話會結束。**  
-> **知識應該持續累積。**
+> **理解應該延續。**
 
 ---
 
@@ -423,7 +424,7 @@ AI 需要更好的記憶。
 但在這裡，它是一個隱喻：
 
 > 真正的記憶，不是什麼都留下。  
-> 而是知道什麼值得留下。
+> 而是知道什麼值得留下，並讓理解隨時間長大。
 
 ---
 
@@ -435,6 +436,8 @@ MIT
 
 ## Acknowledgements
 
-Ginkao started from the very human frustration of discussing the same long-running project with AI, only to watch the context disappear when the conversation restarts.
+Ginkgo started from the very human frustration of discussing the same long-running project with AI, only to watch the context disappear when the conversation restarts.
 
-靈感來自跟 AI 來回討論同一個專案時的失憶痛點。
+靈感來自跟 AI 來回討論同一個專案、研究或規劃時的失憶痛點。
+
+> **Every conversation should leave AI a little wiser.**
