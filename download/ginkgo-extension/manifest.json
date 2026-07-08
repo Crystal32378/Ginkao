@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ginkgo",
   "version": "0.2.0",
-  "description": "治療 AI 失憶症。一鍵把當前 ChatGPT/Claude 對話蒸餾成 Brain 知識，下次開新對話自動注入。該 Ginkgo 了就會提醒你。",
+  "description": "Consistent, evolving memory for AI. Distill ChatGPT and Claude conversations into Brain knowledge for the next conversation.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://chatgpt.com/*",
