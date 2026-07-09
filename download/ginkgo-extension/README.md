@@ -1,4 +1,4 @@
-# 🌿 Ginkgo Ginkgo Pharmacy
+# 🌿 Ginkgo
 
 > 治療 AI 失憶症。一鍵把當前 ChatGPT / Claude 對話存成記憶藥丸，下次開新對話自動注入。
 

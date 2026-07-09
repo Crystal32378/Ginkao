@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * 設計：
  * - 環境變數 GINKGO_API_TOKEN 留空 → 不檢查（local 自用模式）
- * - 設置了 → 所有 /api/projects/** 必須帶 Authorization: Bearer <token>
+ * - 設置了 → 所有 /api/projects/** 與 /api/profile/** 必須帶 Authorization: Bearer <token>
  *
  * 例外路徑（永遠公開）：
  * - GET /api/health — 健康檢查
@@ -14,7 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * 我們用 Sec-Fetch-Site header 判斷是否為 same-origin 瀏覽器請求
  */
 
-const PROTECTED_PREFIX = '/api/projects'
+const PROTECTED_PREFIXES = ['/api/projects', '/api/profile']
 const PUBLIC_PATHS = new Set(['/api/health', '/api/import-url'])
 
 export function checkAuth(req: NextRequest): NextResponse | null {
@@ -28,7 +28,7 @@ export function checkAuth(req: NextRequest): NextResponse | null {
   if (PUBLIC_PATHS.has(path)) return null
 
   // 不是受保護前綴 → 放行（讓 middleware 機制自己處理）
-  if (!path.startsWith(PROTECTED_PREFIX)) return null
+  if (!PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix))) return null
 
   // Same-origin 瀏覽器請求放行（網頁 UI 不需要 token）
   // Sec-Fetch-Site: same-origin 表示來自同源頁面的 fetch

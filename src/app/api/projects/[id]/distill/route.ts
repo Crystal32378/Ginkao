@@ -195,6 +195,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     })
 
     // 8a. 把 profileDelta 存成 PendingProfileSuggestion（不直接套用）
+    // update / retire 也要保留真正的 Profile type，避免 pending review 與 analytics 看到空語意。
+    const profileTypeByItemId = new Map(profileItems.map((item) => [item.itemId, item.type]))
     const profileSuggestionsCreated: Array<{ id: string; type: ProfileType; operation: string }> = []
     for (const a of profileDelta.add) {
       const s = await db.pendingProfileSuggestion.create({
@@ -213,10 +215,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       profileSuggestionsCreated.push({ id: s.id, type: a.type, operation: 'add' })
     }
     for (const u of profileDelta.update) {
+      const type = profileTypeByItemId.get(u.id)
+      if (!type) {
+        console.warn(`[distill] profile update target not found: ${u.id}`)
+        continue
+      }
       const s = await db.pendingProfileSuggestion.create({
         data: {
           operation: 'update',
-          type: '', // update 不需要 type，existingItemId 指向的 item 自帶 type
+          type,
           existingItemId: u.id,
           content: u.content,
           rationale: u.rationale,
@@ -226,13 +233,18 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
           status: 'pending',
         },
       })
-      profileSuggestionsCreated.push({ id: s.id, type: '' as ProfileType, operation: 'update' })
+      profileSuggestionsCreated.push({ id: s.id, type, operation: 'update' })
     }
     for (const r of profileDelta.retire) {
+      const type = profileTypeByItemId.get(r.id)
+      if (!type) {
+        console.warn(`[distill] profile retire target not found: ${r.id}`)
+        continue
+      }
       const s = await db.pendingProfileSuggestion.create({
         data: {
           operation: 'retire',
-          type: '',
+          type,
           existingItemId: r.id,
           rationale: r.reason,
           sourcePillId: pill.id,
@@ -241,7 +253,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
           status: 'pending',
         },
       })
-      profileSuggestionsCreated.push({ id: s.id, type: '' as ProfileType, operation: 'retire' })
+      profileSuggestionsCreated.push({ id: s.id, type, operation: 'retire' })
     }
 
     const profileDeltaSummary = JSON.stringify({

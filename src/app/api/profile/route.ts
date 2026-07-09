@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * POST /api/profile/items
+ * POST /api/profile
  * 手動新增 ProfileItem（直接 active，不需 review）
  *
  * body: { type, name, content, rationale? }

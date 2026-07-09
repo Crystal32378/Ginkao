@@ -5,7 +5,7 @@ export function middleware(req: NextRequest) {
   return checkAuth(req)
 }
 
-// 只攔截 /api/projects 開頭的請求
+// 只攔截需要 API token 保護的請求
 export const config = {
-  matcher: ['/api/projects/:path*'],
+  matcher: ['/api/projects/:path*', '/api/profile/:path*'],
 }

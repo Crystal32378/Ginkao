@@ -193,10 +193,11 @@ $ distill --verbose
       api/                 # REST API，給擴充與 agent 用
     lib/
       brain.ts             # 8 type 定義 + Protocol 格式化
+      profile.ts           # 6 type User Profile + Protocol 格式化
       distill.ts           # Delta 運算 + ritual 輸出
       auth.ts              # API token 認證
       fetch-conversation.ts # 從 share URL 抓對話
-  prisma/schema.prisma     # Project + KnowledgeItem + Pill + DistillationLog
+  prisma/schema.prisma     # Project Brain + User Profile + Pending Review
 
 /download/ginkgo-extension/ # Chrome 擴充，獨立專案
   manifest.json
@@ -285,7 +286,7 @@ requests.post(
 
 ## API Endpoints
 
-所有 `/api/projects/**` 都需帶：
+所有 `/api/projects/**` 與 `/api/profile/**` 都需帶：
 
 ```http
 Authorization: Bearer <token>
@@ -307,7 +308,22 @@ Authorization: Bearer <token>
 | GET | `/api/projects/{id}/diary` | Get distillation diary |
 | GET | `/api/projects/{id}/pills` | List conversation logs |
 | GET | `/api/projects/{id}/memory` | Backward compatibility, redirects to brain |
+| POST | `/api/projects/{id}/import-conversations` | Parse ChatGPT / Claude data export JSON |
 | GET | `/api/import-url?url=...` | Import ChatGPT / Claude share URL |
+
+### Profile API
+
+User Profile 是跨專案合作記憶：不是記錄「你是誰」，而是記錄「AI 應該如何與你合作」。蒸餾對話時產生的 Profile change 會先進 Pending Review，不會自動套用。
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/profile` | Get active Profile items as JSON |
+| GET | `/api/profile?format=protocol` | Get Profile Protocol as plain text for agents |
+| GET | `/api/profile?include=retired` | Include retired Profile items |
+| GET | `/api/profile?include=suggestions` | Include pending Profile suggestions for review |
+| POST | `/api/profile` | Manually create an active Profile item |
+| PATCH | `/api/profile/suggestions/{id}/approve` | Approve a pending add / update / retire suggestion |
+| PATCH | `/api/profile/suggestions/{id}/reject` | Reject a pending suggestion |
 
 ---
 
@@ -382,10 +398,10 @@ $5 USD 的 OpenAI 額度，單人使用大約可以撐 2-8 個月，視對話密
 
 ## Roadmap
 
-- [ ] Chrome 擴充：把 🌿 按鈕搬到對話輸入框旁
+- [x] Chrome Extension：在 ChatGPT / Claude 對話中一鍵蒸餾
+- [x] User Profile 層：記得如何與你合作，不只是專案知識
+- [x] Import / Export：匯入 ChatGPT / Claude data export
 - [ ] 主動提醒「該蒸餾了」
-- [ ] User Profile 層：記得你這個人，不只是專案知識
-- [ ] 從 ChatGPT / Claude 資料匯出匯入
 - [ ] MCP server，給 Claude Desktop / Cursor 用
 - [ ] Custom GPT Action schema
 - [ ] Token-saved 累計 dashboard

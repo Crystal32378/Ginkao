@@ -218,7 +218,13 @@ function ProjectListView({ onOpen }: { onOpen: (p: Project) => void }) {
   }, [toast])
 
   useEffect(() => {
-    fetchProjects()
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) void fetchProjects()
+    })
+    return () => {
+      cancelled = true
+    }
   }, [fetchProjects])
 
   const handleCreate = async () => {
@@ -478,7 +484,13 @@ function ProjectDetailView({ project, onBack }: { project: Project | null; onBac
   }, [project, toast])
 
   useEffect(() => {
-    fetchAll()
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) void fetchAll()
+    })
+    return () => {
+      cancelled = true
+    }
   }, [fetchAll])
 
   const handleDistill = async () => {
@@ -1208,7 +1220,13 @@ function UserProfileCard({ onProfileChanged }: { onProfileChanged: () => Promise
   }, [toast])
 
   useEffect(() => {
-    fetchProfile()
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) void fetchProfile()
+    })
+    return () => {
+      cancelled = true
+    }
   }, [fetchProfile])
 
   const handleAdd = async () => {
